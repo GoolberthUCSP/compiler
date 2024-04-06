@@ -3,3 +3,13 @@
 ## 'este es un subtítulo'
 
 ## 'este es otro subtítulo'
+
++ 'item1'
++ 'item2'
+
+- 'item1'
+- 'item2'
+
+!['esta es una imagen']('link o path')
+
+['este es un link']('link o path')

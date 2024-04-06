@@ -42,6 +42,23 @@ def Scanner(file : MyStringIO):
         # newline
         elif char == '\n':
             tokens.append(["newline", char])
+        # ordered list mark
+        elif char == "+":
+            tokens.append(["olistmark", char])
+        # unordered list mark
+        elif char == "-":
+            tokens.append(["ulistmark", char])
+        elif char == "!":
+            tokens.append(["imagemark", char])
+        elif char == "[":
+            tokens.append(["openbracket", char])
+        elif char == "]":
+            tokens.append(["closebracket", char])
+        elif char == "(":
+            tokens.append(["openparenth", char])
+            # TODO: Add support for recognized links or routes
+        elif char == ")":
+            tokens.append(["closeparenth", char])
 
     tokens.append(["eof", ""])
     return tokens        
