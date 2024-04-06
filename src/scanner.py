@@ -20,32 +20,28 @@ def Scanner(file : MyStringIO):
                 value += file.read(1)
                 if file.peek(1) == "#":
                     value += file.read(1)
-                    tokens.append(["H3", value]) # value = ###
+                    tokens.append(["h3", value]) # value = ###
                 else :
-                    tokens.append(["H2", value]) # value = ##
+                    tokens.append(["h2", value]) # value = ##
             else :
-                tokens.append(["H1", value]) # value = #
+                tokens.append(["h1", value]) # value = #
         # string
         elif char == "'":
             while file.peek(1) != "'":
                 value += file.read(1)
             file.read(1) # Consumes the last '
-            tokens.append(["STR", value]) # value = 'data'
+            tokens.append(["string", value]) # value = 'data'
         # bold and italics
         elif char == "*":
             value += char
             if file.peek(1) == "*":
                 value += file.read(1)
-                tokens.append(["BOLDMARK", value]) # value = **
+                tokens.append(["boldmark", value]) # value = **
             else :
-                tokens.append(["ITALICMARK", value]) # value = *
+                tokens.append(["italicmark", value]) # value = *
         # newline
         elif char == '\n':
-            value += char
-            tokens.append(["NEWLINE", value]) # value = \n
-        
-        char = file.read(1)
-        value += char
+            tokens.append(["newline", char])
 
-    tokens.append(["EOF", ""])
+    tokens.append(["eof", ""])
     return tokens        

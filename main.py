@@ -11,3 +11,4 @@ if __name__ == "__main__":
     tokens = scanner.Scanner(file)
     for token in tokens:
         print(token)
+    file.close()
