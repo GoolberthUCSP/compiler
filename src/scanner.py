@@ -42,6 +42,17 @@ def Scanner(file : MyStringIO):
         # newline
         elif char == '\n':
             tokens.append(["newline", char])
+            if file.peek(1) == '\n':
+                tokens.append(["newline", file.read(1)])
+            while file.peek(1) == '\n':
+                file.read(1)
+        # comment
+        elif (char == "/" and file.peek(1) == "*"):
+            while file.peek(2) != "*/":
+                file.read(1)
+            file.read(2)
+            while file.peek(1) == '\n':
+                file.read(1)
         # ordered list mark
         elif char == "+":
             tokens.append(["olistmark", char])
