@@ -36,10 +36,11 @@ class Grammar:
                     self.tokens.append(["h1", value]) # value = #
             # string
             elif char == "'":
+                self.tokens.append(["textmark", char]) # value = '
                 while self.file.peek(1) != "'":
                     value += self.file.read(1)
-                self.file.read(1) # Consumes the last '
                 self.tokens.append(["string", value]) # value = 'data'
+                self.tokens.append(["textmark", "'"]) # value = '
             # bold and italics
             elif char == "*":
                 value += char
