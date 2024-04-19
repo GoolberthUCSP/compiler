@@ -1,4 +1,4 @@
-from src import scanner
+from src.grammar import *
 import io
 import os
 
@@ -7,8 +7,8 @@ os.chdir(script_dir)
 
 if __name__ == "__main__":
     file = open("test/data.txt", "r", encoding="utf-8")
-    file = scanner.MyStringIO(file.read())
-    tokens = scanner.Scanner(file)
+    my_grammar = Grammar()
+    my_grammar.validate(MyStringIO(file.read()))
     file.close()
-    for token in tokens:
+    for token in my_grammar.tokens:
         print(token)
