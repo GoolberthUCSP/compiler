@@ -1,5 +1,4 @@
 import io
-import re
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -41,9 +40,12 @@ def Scanner(file : MyStringIO):
                 tokens.append(["italicmark", value]) # value = *
         # newline
         elif char == '\n':
-            tokens.append(["newline", char])
+            value += char
             if file.peek(1) == '\n':
-                tokens.append(["newline", file.read(1)])
+                value += file.read(1)
+                tokens.append(["blocksep", value])
+            else:
+                tokens.append(["newline", value])
             while file.peek(1) == '\n':
                 file.read(1)
         # comment
