@@ -1,4 +1,5 @@
 import io
+import rules
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -9,7 +10,7 @@ class MyStringIO(io.StringIO):
 
 class Grammar:
     def __init__(self):
-        self.productions = {}
+        self.productions = rules.productions
         self.tokens = []
         self.errors = []
         self.file = MyStringIO
@@ -29,63 +30,63 @@ class Grammar:
                     value += self.file.read(1)
                     if self.file.peek(1) == "#":
                         value += self.file.read(1)
-                        self.tokens.append(["h3", value]) # value = ###
-                    else :
-                        self.tokens.append(["h2", value]) # value = ##
-                else :
-                    self.tokens.append(["h1", value]) # value = #
+                        self.tokens.append(["H3", value])  # value = ###
+                    else:
+                        self.tokens.append(["H2", value])  # value = ##
+                else:
+                    self.tokens.append(["H1", value])  # value = #
             # string
             elif char == "'":
-                self.tokens.append(["textmark", char]) # value = '
+                self.tokens.append(["TEXTMARK", char])  # value = '
                 while self.file.peek(1) != "'":
                     value += self.file.read(1)
-                self.tokens.append(["string", value]) # value = 'data'
-                self.tokens.append(["textmark", "'"]) # value = '
+                self.tokens.append(["STRING", value])  # value = 'data'
+                self.tokens.append(["TEXTMARK", "'"])  # value = '
             # bold and italics
             elif char == "*":
                 value += char
                 if self.file.peek(1) == "*":
                     value += self.file.read(1)
-                    self.tokens.append(["boldmark", value]) # value = **
-                else :
-                    self.tokens.append(["italicmark", value]) # value = *
+                    self.tokens.append(["BOLDMARK", value])  # value = **
+                else:
+                    self.tokens.append(["ITALICMARK", value])  # value = *
             # newline
             elif char == '\n':
                 value += char
                 if self.file.peek(1) == '\n':
                     value += self.file.read(1)
-                    self.tokens.append(["blocksep", value])
+                    self.tokens.append(["BLOCKSEP", value])  # value = \n\n
                 else:
-                    self.tokens.append(["newline", value])
+                    self.tokens.append(["NEWLINE", value])  # value = \n
                 while self.file.peek(1) == '\n':
-                    self.file.read(1)
+                    self.file.read(1)  # skip empty lines
             # comment
             elif (char == "/" and self.file.peek(1) == "*"):
                 while self.file.peek(2) != "*/":
                     self.file.read(1)
-                self.file.read(2)
+                self.file.read(2)  # skip comment
                 while self.file.peek(1) == '\n':
                     self.file.read(1)
             # ordered list mark
             elif char == "+":
-                self.tokens.append(["olistmark", char])
+                self.tokens.append(["OLISTMARK", char])
             # unordered list mark
             elif char == "-":
-                self.tokens.append(["ulistmark", char])
+                self.tokens.append(["ULISTMARK", char])
             elif char == "!":
-                self.tokens.append(["imagemark", char])
+                self.tokens.append(["IMAGEMARK", char])
             elif char == "[":
-                self.tokens.append(["openbracket", char])
+                self.tokens.append(["OPENBRACKET", char])
             elif char == "]":
-                self.tokens.append(["closebracket", char])
+                self.tokens.append(["CLOSEBRACKET", char])
             elif char == "(":
-                self.tokens.append(["openparenth", char])
+                self.tokens.append(["OPENPARENTH", char])
                 # TODO: Add support for recognized links or routes
             elif char == ")":
-                self.tokens.append(["closeparenth", char])
-
-        self.tokens.append(["eof", ""])
-        return self.tokens    
+                self.tokens.append(["CLOSEPARENTH", char])
+    
+        self.tokens.append(["EOF", ""])
+        return self.tokens   
     
     def parser(self):
         pass
