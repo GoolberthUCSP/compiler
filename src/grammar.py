@@ -40,7 +40,7 @@ class Grammar:
                 while self.file.peek(1) != "'":
                     value += self.file.read(1)
                 self.tokens.append(["STRING", value])  # value = 'data'
-                self.tokens.append(["TEXTMARK", "'"])  # value = '
+                self.tokens.append(["TEXTMARK", self.file.read(1)])  # value = '
             # bold and italics
             elif char == "*":
                 value += char
@@ -83,7 +83,6 @@ class Grammar:
                 # TODO: Add support for recognized links or routes
             elif char == ")":
                 self.tokens.append(["CLOSEPARENTH", char])
-    
         self.tokens.append(["EOF", "$"])
         return self.tokens   
     
