@@ -1,5 +1,5 @@
 import io
-import rules
+from src import rules
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -85,7 +85,7 @@ class Grammar:
             elif char == ")":
                 self.tokens.append(["CLOSEPARENTH", char])
     
-        self.tokens.append(["EOF", ""])
+        self.tokens.append(["EOF", "$"])
         return self.tokens   
     
     def parser(self):
