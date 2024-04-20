@@ -1,5 +1,5 @@
 import io
-from src import rules
+import rules
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):

@@ -1,9 +1,6 @@
-import rules
-
-separator = " ::= "
-
 def convert_to_string(rules):
     result = ""
+    separator = " ::= "
     for key, value in rules.items():
         if not isinstance(value, list):
             if key == "EOF" : continue
@@ -19,5 +16,3 @@ def convert_to_string(rules):
                 tmp += item + " "
             result += key + separator + tmp + "\n"
     return result
-
-print(convert_to_string(rules.productions))
