@@ -1,5 +1,4 @@
 import io
-import rules
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -9,11 +8,11 @@ class MyStringIO(io.StringIO):
         return data
 
 class Grammar:
-    def __init__(self):
-        self.productions = rules.productions
+    def __init__(self, productions):
+        self.productions = productions
         self.tokens = []
         self.errors = []
-        self.file = MyStringIO
+        self.file = None
     
     def validate(self, input : MyStringIO):
         self.file = input
@@ -89,4 +88,5 @@ class Grammar:
         return self.tokens   
     
     def parser(self):
-        pass
+        for token in self.tokens:
+            print(token)
