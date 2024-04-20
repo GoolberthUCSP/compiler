@@ -1,7 +1,7 @@
 productions = {
     "DOCUMENT" : [["BLOCKS", "EOF"]],
     "BLOCKS" : [["BLOCK", "BLOCKSEP", "BLOCKS"], 
-                ["EPSILON"]],
+                ["epsilon"]],
     "BLOCK" : [["H1", "TEXT"], 
                ["H2", "TEXT"], 
                ["H3", "TEXT"], 
@@ -13,24 +13,27 @@ productions = {
                ["URL"], 
                ["COMMENT"]],
     "TEXT" : [["SENTENCE", "TEXT"],
-              ["EPSILON"]],
+              ["epsilon"]],
     "SENTENCE" : [["STRING"],
                   ["BOLDMARK", "STRING", "BOLDMARK"],
                   ["ITALICMARK", "STRING", "ITALICMARK"]],
     "STRING" : [["TEXTMARK", "ALPHA", "TEXTMARK"]],
-    "OLIST" : [["OLISTITEM", "NEWLINE", "OLIST"], # DELETE OLISTPRIME PRODUCTION
-               ["EPSILON"]],
+    "OLIST" : [["OLISTITEM", "OLIST'"]],
+    "OLIST'" : [["NEWLINE", "OLIST"], 
+                ["epsilon"]],
     "OLISTITEM" : [["OLISTMARK", "TEXT"]],
-    "ULIST" : [["ULISTITEM", "NEWLINE", "ULIST"], # DELETE ULISTPRIME PRODUCTION
-               ["EPSILON"]],
+    "ULIST" : [["ULISTITEM", "ULIST'"]],
+    "ULIST'" : [["NEWLINE", "ULIST"], 
+                ["epsilon"]],
     "ULISTITEM" : [["ULISTMARK", "TEXT"]],
-    "TABLE" : [["TABLEHEAD", "NEWLINE", "TABLEBODY"]],
-    "TABLEHEAD" : [["TABHEADSEP", "TEXT", "TABLEHEAD"],
-                   ["EPSILON"]],
-    "TABLEBODY" : [["TABLEBODYROW", "NEWLINE", "TABLEBODY"],
-                   ["EPSILON"]],
-    "TABLEBODYROW" : [["TABLEBODYSEP", "TEXT", "TABLEBODYROW"], # ADDED TABLEBODYROW INSTEAD OF TABLEBODYPRIME
-                      ["EPSILON"]],
+    "TABLE" : [["TABLEHEAD", "TABLEBODY"]],
+    "TABLEHEAD" : [["TABLEHEADSEP", "TEXT", "TABLEHEAD'"]],
+    "TABLEHEAD'" : [["TABLEHEAD"], 
+                    ["NEWLINE"]],
+    "TABLEBODY" : [["TABLEBODYSEP", "TEXT", "TABLEBODY'"]],
+    "TABLEBODY'" : [["TABLEBODY"],
+                    ["NEWLINE"],
+                    ["epsilon"]],
     "IMAGE" : [["IMAGEMARK", "OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "TEXT", "CLOSEPARENT"]],
     "URL" : [["OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "TEXT", "CLOSEPARENT"]],
     "COMMENT" : [["COMMENTOPEN", "STRING", "COMMENTCLOSE"]],
@@ -45,7 +48,7 @@ productions = {
     "TEXTMARK" : "'",
     "NEWLINE" : "\n",
     "BLOCKSEP" : "\n\n",
-    "TABHEADSEP" : "&",
+    "TABLEHEADSEP" : "&",
     "TABLEBODYSEP" : "|",
     "OPENBRACKET" : "[",
     "CLOSEBRACKET" : "]",
@@ -53,7 +56,6 @@ productions = {
     "CLOSEPARENT" : ")",
     "COMMENTOPEN" : "/*",
     "COMMENTCLOSE" : "*/",
-    "ALPHA" : "alphabet", # DEBUGGING
-    "EOF" : "$",
-    "EPSILON" : ""
+    "ALPHA" : "a", # DEBUGGING
+    "EOF" : "$"
 }
