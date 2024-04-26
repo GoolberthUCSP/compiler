@@ -10,13 +10,20 @@ class MyStringIO(io.StringIO):
 class Grammar:
     def __init__(self, productions):
         self.productions = productions
+        self.num_productions = self.enum_productions()
+        self.parsing_table = self.fill_parsing_table()
         self.tokens = []
         self.errors = []
-        self.file = None
-    
+        self.file = None 
+
     def validate(self, input : MyStringIO):
         self.file = input
         self.tokens = self.scanner()
+        done = self.parser()
+        if not done:
+            for error in self.errors:
+                print(error)
+        return done
 
     def scanner(self):
         while self.file.peek(1):
@@ -88,4 +95,77 @@ class Grammar:
     
     def parser(self):
         for token in self.tokens:
-            print(token)
+            value = token[1]
+            queue = [value] # TODO
+
+    def enum_productions(self):
+        result = []
+        for key, value in self.productions.items():
+            if not isinstance(value, list):
+                result.append([key, value])
+                continue
+            for prod in value:
+                result.append([key, prod])
+        return result
+
+    def first(self, token, visited=None):
+        firsts = set()
+        if visited is None:
+            visited = set()
+        if token in visited:
+            return firsts
+        visited.append(token)
+        if token not in self.productions:
+            firsts.append(token)
+            return firsts
+        token_productions = self.productions[token]
+        if isinstance(token_productions, str):
+            firsts.append(token_productions)
+            return firsts
+        for production in token_productions:
+            for symbol in production:
+                symbol_first = self.first(symbol, visited)
+                firsts |= symbol_first
+                if "epsilon" not in symbol_first:
+                    break
+            else:
+                if production:
+                    firsts.append("epsilon")
+        visited.remove(token)
+        return firsts
+    
+    def follow(self, token, visited= None):
+        follows = set()
+        if visited is None:
+            visited = set()
+        if token in visited:
+            return follows
+        if token == "DOCUMENT":
+            follows.add("$")
+            visited.add(token)
+            return follows
+        for production in self.num_productions:
+            if token not in production[1]: # token not in production
+                continue
+            for idx, production_token in enumerate(production[1]):
+                if production_token == token:
+                    if idx == len(production[1]) - 1: # token = last e.g. A -> abCd[TOKEN]
+                        follows |= self.follow(production[0], visited)
+                    else: # token != last e.g. A -> abC[TOKEN]d
+                        follows |= self.first(production[1][idx + 1])
+        return follows
+    
+    def fill_parsing_table(self):
+        parsing_tab = dict(dict())
+        for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
+            if not isinstance(num_production[1], list): # num_production[1] = terminal
+                parsing_tab[num_production[0]][num_production[1]] = idx
+            else: # num_production[1] = list
+                # Start of first plus
+                firsts = self.first(num_production[1][0])
+                if "epsilon" in firsts:
+                    firsts |= self.follow(num_production[0])
+                # End of first plus
+                for first in firsts:
+                    parsing_tab[num_production[0]][first] = idx
+                

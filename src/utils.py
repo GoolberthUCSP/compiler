@@ -17,28 +17,8 @@ def convert_to_string(rules):
             result += key + separator + tmp + "\n"
     return result
 
-def first(token, productions, visited=None):
-    firsts = set()
-    if visited is None:
-        visited = set()
-    if token in visited:
-        return firsts
-    visited.add(token)
-    if token not in productions:
-        firsts.add(token)
-        return firsts
-    token_productions = productions[token]
-    if isinstance(token_productions, str):
-        firsts.add(token_productions)
-        return firsts
-    for production in token_productions:
-        for symbol in production:
-            symbol_first = first(symbol, productions, visited)
-            firsts |= symbol_first
-            if "epsilon" not in symbol_first:
-                break
-        else:
-            if production:
-                firsts.add("epsilon")
-    visited.remove(token)
-    return firsts
+def follow(token, productions, visited=None):
+    pass
+
+def first_plus(idx, productions):
+    production = productions[idx]

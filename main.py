@@ -1,6 +1,6 @@
 from src.grammar import *
 from src.rules import productions
-from src.utils import convert_to_string
+from src.utils import *
 import io
 import os
 
@@ -12,6 +12,3 @@ if __name__ == "__main__":
     with open("test/data.txt", "r", encoding="utf-8") as file:
         buffer = MyStringIO(file.read())
         my_grammar.validate(buffer)
-            
-    print(convert_to_string(productions))
-    
