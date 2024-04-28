@@ -114,13 +114,13 @@ class Grammar:
             visited = set()
         if token in visited:
             return firsts
-        visited.append(token)
+        visited.add(token)
         if token not in self.productions:
-            firsts.append(token)
+            firsts.add(token)
             return firsts
         token_productions = self.productions[token]
         if isinstance(token_productions, str):
-            firsts.append(token_productions)
+            firsts.add(token_productions)
             return firsts
         for production in token_productions:
             for symbol in production:
@@ -130,25 +130,28 @@ class Grammar:
                     break
             else:
                 if production:
-                    firsts.append("epsilon")
+                    firsts.add("epsilon")
         visited.remove(token)
         return firsts
     
     def follow(self, token, visited= None):
+        #print(f"calculating follow of: {token}")
         follows = set()
         if visited is None:
             visited = set()
         if token in visited:
             return follows
+        visited.add(token)
         if token == "DOCUMENT":
             follows.add("$")
-            visited.add(token)
             return follows
         for production in self.num_productions:
             if token not in production[1]: # token not in production
                 continue
             for idx, production_token in enumerate(production[1]):
+                #print(f"idx: {idx}, production token: {production_token}")
                 if production_token == token:
+                    #print(f"idx: {idx}, production token: {production_token}, production: {production}")
                     if idx == len(production[1]) - 1: # token = last e.g. A -> abCd[TOKEN]
                         follows |= self.follow(production[0], visited)
                     else: # token != last e.g. A -> abC[TOKEN]d
@@ -159,13 +162,21 @@ class Grammar:
         parsing_tab = dict(dict())
         for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
             if not isinstance(num_production[1], list): # num_production[1] = terminal
+                if num_production[0] not in parsing_tab:
+                        parsing_tab[num_production[0]] = {}
                 parsing_tab[num_production[0]][num_production[1]] = idx
             else: # num_production[1] = list
                 # Start of first plus
+                print(f"Production: {num_production[0]}")
                 firsts = self.first(num_production[1][0])
+                print(f"Set after first: {firsts}")
                 if "epsilon" in firsts:
+                    #print(f"follow function of: {num_production[0]}")
                     firsts |= self.follow(num_production[0])
                 # End of first plus
+                print(f"Set after follow: {firsts}")
                 for first in firsts:
+                    if num_production[0] not in parsing_tab:
+                        parsing_tab[num_production[0]] = {}
                     parsing_tab[num_production[0]][first] = idx
                 
