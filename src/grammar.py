@@ -115,14 +115,11 @@ class Grammar:
         if token in visited:
             return firsts
         visited.add(token)
-        visited.add(token)
         if token not in self.productions:
-            firsts.add(token)
             firsts.add(token)
             return firsts
         token_productions = self.productions[token]
         if isinstance(token_productions, str):
-            firsts.add(token_productions)
             firsts.add(token_productions)
             return firsts
         for production in token_productions:
@@ -133,7 +130,6 @@ class Grammar:
                     break
             else:
                 if production:
-                    firsts.add("epsilon")
                     firsts.add("epsilon")
         visited.remove(token)
         return firsts

@@ -16,9 +16,3 @@ def convert_to_string(rules):
                 tmp += item + " "
             result += key + separator + tmp + "\n"
     return result
-
-def follow(token, productions, visited=None):
-    pass
-
-def first_plus(idx, productions):
-    production = productions[idx]
