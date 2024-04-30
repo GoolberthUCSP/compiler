@@ -167,18 +167,13 @@ class Grammar:
         for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
             self.parsing_table[num_production[0]] = dict()
             if not isinstance(num_production[1], list): # num_production[1] = terminal
-                if num_production[0] not in parsing_tab:
-                        parsing_tab[num_production[0]] = {}
                 self.parsing_table[num_production[0]][num_production[1]] = idx
             else: # num_production[1] = list
                 # Start of first plus
-                print(f"Production: {num_production[0]}")
                 firsts = self.first(num_production[1][0])
-                print(f"Set after first: {firsts}")
                 if "epsilon" in firsts:
                     #print(f"follow function of: {num_production[0]}")
                     firsts |= self.follow(num_production[0])
                 # End of first plus
-                print(f"Set after follow: {firsts}")
                 for first in firsts:
                     self.parsing_table[num_production[0]][first] = idx
