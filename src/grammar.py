@@ -10,11 +10,13 @@ class MyStringIO(io.StringIO):
 class Grammar:
     def __init__(self, productions):
         self.productions = productions
-        self.num_productions = self.enum_productions()
-        self.parsing_table = self.fill_parsing_table()
+        self.num_productions = []
+        self.parsing_table = dict(dict())
         self.tokens = []
         self.errors = []
-        self.file = None 
+        self.file = None
+        self.enum_productions()
+        self.fill_parsing_table()
 
     def validate(self, input : MyStringIO):
         self.file = input
@@ -99,14 +101,12 @@ class Grammar:
             queue = [value] # TODO
 
     def enum_productions(self):
-        result = []
         for key, value in self.productions.items():
             if not isinstance(value, list):
-                result.append([key, value])
+                self.num_productions.append([key, value])
                 continue
             for prod in value:
-                result.append([key, prod])
-        return result
+                self.num_productions.append([key, prod])
 
     def first(self, token, visited=None):
         firsts = set()
@@ -156,10 +156,9 @@ class Grammar:
         return follows
     
     def fill_parsing_table(self):
-        parsing_tab = dict(dict())
         for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
             if not isinstance(num_production[1], list): # num_production[1] = terminal
-                parsing_tab[num_production[0]][num_production[1]] = idx
+                self.parsing_tab[num_production[0]][num_production[1]] = idx
             else: # num_production[1] = list
                 # Start of first plus
                 firsts = self.first(num_production[1][0])
@@ -167,5 +166,4 @@ class Grammar:
                     firsts |= self.follow(num_production[0])
                 # End of first plus
                 for first in firsts:
-                    parsing_tab[num_production[0]][first] = idx
-                
+                    self.parsing_tab[num_production[0]][first] = idx
