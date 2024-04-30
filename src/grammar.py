@@ -114,13 +114,13 @@ class Grammar:
             visited = set()
         if token in visited:
             return firsts
-        visited.append(token)
+        visited.add(token)
         if token not in self.productions:
-            firsts.append(token)
+            firsts.add(token)
             return firsts
         token_productions = self.productions[token]
         if isinstance(token_productions, str):
-            firsts.append(token_productions)
+            firsts.add(token_productions)
             return firsts
         for production in token_productions:
             for symbol in production:
@@ -130,7 +130,7 @@ class Grammar:
                     break
             else:
                 if production:
-                    firsts.append("epsilon")
+                    firsts.add("epsilon")
         visited.remove(token)
         return firsts
     
@@ -144,6 +144,7 @@ class Grammar:
             follows.add("$")
             visited.add(token)
             return follows
+        visited.add(token)
         for production in self.num_productions:
             if token not in production[1]: # token not in production
                 continue
@@ -157,8 +158,9 @@ class Grammar:
     
     def fill_parsing_table(self):
         for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
+            self.parsing_table[num_production[0]] = dict()
             if not isinstance(num_production[1], list): # num_production[1] = terminal
-                self.parsing_tab[num_production[0]][num_production[1]] = idx
+                self.parsing_table[num_production[0]][num_production[1]] = idx
             else: # num_production[1] = list
                 # Start of first plus
                 firsts = self.first(num_production[1][0])
@@ -166,4 +168,4 @@ class Grammar:
                     firsts |= self.follow(num_production[0])
                 # End of first plus
                 for first in firsts:
-                    self.parsing_tab[num_production[0]][first] = idx
+                    self.parsing_table[num_production[0]][first] = idx
