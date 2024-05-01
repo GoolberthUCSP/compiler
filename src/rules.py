@@ -46,8 +46,8 @@ productions = {
     "BOLDMARK" : "**",
     "ITALICMARK" : "*",
     "TEXTMARK" : "'",
-    "NEWLINE" : "\n",
-    "BLOCKSEP" : "\n\n",
+    "NEWLINE" : "\n", # Cambiar a n para imprimir tabla
+    "BLOCKSEP" : "\n\n", # Cambiar a nn para imprimir tabla
     "TABLEHEADSEP" : "&",
     "TABLEBODYSEP" : "|",
     "OPENBRACKET" : "[",

@@ -161,7 +161,8 @@ class Grammar:
     
     def fill_parsing_table(self):
         for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
-            self.parsing_table[num_production[0]] = dict()
+            if (num_production[0] not in self.parsing_table):
+                self.parsing_table[num_production[0]] = dict()
             if not isinstance(num_production[1], list): # num_production[1] = terminal
                 self.parsing_table[num_production[0]][num_production[1]] = idx
             else: # num_production[1] = list
@@ -173,3 +174,26 @@ class Grammar:
                 # End of first plus
                 for first in firsts:
                     self.parsing_table[num_production[0]][first] = idx
+    
+    #Courtsey of chatGPT
+    def write_parsing_table_to_file(self, file_name):
+        with open(file_name, 'w') as file:
+            # Write column headers
+            file.write("{:<10}".format("Symbol"))
+            terminals = set()
+            for symbol, productions in self.parsing_table.items():
+                terminals.update(productions.keys())
+            for terminal in sorted(terminals):
+                file.write("{:<10}".format(terminal))
+            file.write("\n")
+
+            # Write table content
+            for symbol, productions in self.parsing_table.items():
+                file.write("{:<10}".format(symbol))
+                for terminal in sorted(terminals):
+                    production_number = productions.get(terminal)
+                    if production_number is not None:
+                        file.write("{:<10}".format(str(production_number)))
+                    else:
+                        file.write("{:<10}".format("-"))
+                file.write("\n")
