@@ -51,7 +51,7 @@ class Grammar:
                 self.tokens.append(["TEXTMARK", char])  # value = '
                 while self.file.peek(1) != "'":
                     value += self.file.read(1)
-                self.tokens.append(["STRING", value])  # value = 'data'
+                self.tokens.append(["ALPHA", value])  # value = 'data'
                 self.tokens.append(["TEXTMARK", self.file.read(1)])  # value = '
             # bold and italics
             elif char == "*":
