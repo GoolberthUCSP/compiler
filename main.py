@@ -9,6 +9,6 @@ os.chdir(script_dir)
 
 if __name__ == "__main__":
     my_grammar = Grammar(productions)
-    with open("test/data.txt", "r", encoding="utf-8") as file:
+    with open("test/testdata.txt", "r", encoding="utf-8") as file:
         buffer = MyStringIO(file.read())
         my_grammar.validate(buffer)

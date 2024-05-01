@@ -23,9 +23,12 @@ class Grammar:
         self.tokens = self.scanner()
         done = self.parser()
         if not done:
+            print("Errors:")
             for error in self.errors:
-                print(error)
-        return done
+                print("\t", error)
+        else:
+            print("Success!")
+        
 
     def scanner(self):
         while self.file.peek(1):
@@ -44,7 +47,7 @@ class Grammar:
                 else:
                     self.tokens.append(["H1", value])  # value = #
             # string
-            elif char == "'":
+            elif char == "'": # Bad syntax: 'data' isn't a token, they're three tokens: TEXTMARK, STRING, TEXTMARK
                 self.tokens.append(["TEXTMARK", char])  # value = '
                 while self.file.peek(1) != "'":
                     value += self.file.read(1)
@@ -96,9 +99,34 @@ class Grammar:
         return self.tokens   
     
     def parser(self):
-        for token in self.tokens:
-            value = token[1]
-            queue = [value] # TODO
+        stack = []
+        stack.append("DOCUMENT")
+        queue = self.tokens[:]
+        word = queue.pop(0) # word = [token, value] e.g. ["H1", "#"]
+        while True:
+            # Top of Stack = stack[-1]
+            if stack[-1] == word[1] == "$":
+                return True # success
+            elif stack[-1] not in self.productions.keys(): # stack[-1] = terminal
+                if stack[-1] != word[1]:
+                    self.errors.append(f"Expected {word[0]}, got {stack[-1]}")
+                    return False # error
+                else:
+                    stack.pop()
+                    word = queue.pop(0)
+            else: # stack[-1] == non-terminal
+                if word[1] in self.parsing_table[stack[-1]].keys():
+                    production = self.num_productions[self.parsing_table[stack[-1]][word[1]]][1]
+                    stack.pop()
+                    if not isinstance(production, list):
+                        production = [production]
+                    if production == ["epsilon"]:
+                        continue
+                    for prod in reversed(production): # reversed because we append to stack
+                        stack.append(prod)
+                else:
+                    self.errors.append(f"Production not found: parsing_table[{stack[-1]}][{word[1]}]")
+                    return False # error
 
     def enum_productions(self):
         for key, value in self.productions.items():
@@ -161,7 +189,7 @@ class Grammar:
     
     def fill_parsing_table(self):
         for idx, num_production in enumerate(self.num_productions): # num_production = [key, production]
-            if (num_production[0] not in self.parsing_table):
+            if (num_production[0] not in self.parsing_table.keys()):
                 self.parsing_table[num_production[0]] = dict()
             if not isinstance(num_production[1], list): # num_production[1] = terminal
                 self.parsing_table[num_production[0]][num_production[1]] = idx

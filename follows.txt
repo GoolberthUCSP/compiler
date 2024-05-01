@@ -1,4 +1,0 @@
-DOCUMENT: $
-BLOCKS: $,
-BLOCK: \n\n
-TEXT: +,-,&,|,\n,),],

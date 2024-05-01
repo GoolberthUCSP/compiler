@@ -1,0 +1,34 @@
+# 'a'
+
+## 'a'
+
+
+
+
+/* The next blocks will be an error: 
+## 'a -> infinite loop
+
+## 'a'
+## 'a'
+
+*/
+
+
+
+
+
+
+## 'a'
+
+## 'a'
+
++ 'a'
++ 'a'
+
+- 'a'
+- 'a'
+
+!['a']('a')
+
+['a']('a')
+
