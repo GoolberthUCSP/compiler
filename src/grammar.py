@@ -21,6 +21,7 @@ class Grammar:
     def validate(self, input : MyStringIO):
         self.file = input
         self.tokens = self.scanner()
+        #print(self.tokens)
         done = self.parser()
         if not done:
             print("Errors:")
@@ -49,8 +50,19 @@ class Grammar:
             # string
             elif char == "'": # Bad syntax: 'data' isn't a token, they're three tokens: TEXTMARK, STRING, TEXTMARK
                 self.tokens.append(["TEXTMARK", char])  # value = '
+                endcheck = False
                 while self.file.peek(1) != "'":
-                    value += self.file.read(1)
+                    nextval = self.file.read(1)
+                    value += nextval
+                    #print(f"-{self.file.peek(1)}+")
+                    if (not nextval):
+                            print("loop breaker")
+                            endcheck = True
+                            self.tokens.append(["ALPHA", value])
+                            self.tokens.append(["EOF", "$"])
+                            break
+                if endcheck:
+                    continue
                 self.tokens.append(["ALPHA", value])  # value = 'data'
                 self.tokens.append(["TEXTMARK", self.file.read(1)])  # value = '
             # bold and italics
@@ -95,7 +107,12 @@ class Grammar:
                 # TODO: Add support for recognized links or routes
             elif char == ")":
                 self.tokens.append(["CLOSEPARENTH", char])
-        self.tokens.append(["EOF", "$"])
+            elif char == "&":
+                self.tokens.append(["TABLEHEADSEP", char])
+            elif char == "|":
+                self.tokens.append(["TABLEBODYSEP", char])
+        if not endcheck:
+            self.tokens.append(["EOF", "$"])
         return self.tokens   
     
     def parser(self):

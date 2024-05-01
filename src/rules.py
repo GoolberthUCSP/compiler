@@ -32,7 +32,7 @@ productions = {
                     ["NEWLINE"]],
     "TABLEBODY" : [["TABLEBODYSEP", "TEXT", "TABLEBODY'"]],
     "TABLEBODY'" : [["TABLEBODY"],
-                    ["NEWLINE"],
+                    ["NEWLINE", "TABLEBODY"],
                     ["epsilon"]],
     "IMAGE" : [["IMAGEMARK", "OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "TEXT", "CLOSEPARENT"]],
     "URL" : [["OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "TEXT", "CLOSEPARENT"]],
