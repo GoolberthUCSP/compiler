@@ -54,9 +54,7 @@ class Grammar:
                 while self.file.peek(1) != "'":
                     nextval = self.file.read(1)
                     value += nextval
-                    #print(f"-{self.file.peek(1)}+")
                     if (not nextval):
-                            print("loop breaker")
                             endcheck = True
                             self.tokens.append(["ALPHA", value])
                             self.tokens.append(["EOF", "$"])
@@ -87,7 +85,7 @@ class Grammar:
             elif (char == "/" and self.file.peek(1) == "*"):
                 while self.file.peek(2) != "*/":
                     self.file.read(1)
-                self.file.read(2)  # skip comment
+                self.file.read(2)  # skip comment closer = */
                 while self.file.peek(1) == '\n':
                     self.file.read(1)
             # ordered list mark
@@ -180,7 +178,6 @@ class Grammar:
         return firsts
     
     def follow(self, token, visited= None):
-        #print(f"calculating follow of: {token}")
         follows = set()
         if visited is None:
             visited = set()
@@ -195,9 +192,7 @@ class Grammar:
             if token not in production[1]: # token not in production
                 continue
             for idx, production_token in enumerate(production[1]):
-                #print(f"idx: {idx}, production token: {production_token}")
                 if production_token == token:
-                    #print(f"idx: {idx}, production token: {production_token}, production: {production}")
                     if idx == len(production[1]) - 1: # token = last e.g. A -> abCd[TOKEN]
                         follows |= self.follow(production[0], visited)
                     else: # token != last e.g. A -> abC[TOKEN]d
@@ -214,7 +209,6 @@ class Grammar:
                 # Start of first plus
                 firsts = self.first(num_production[1][0])
                 if "epsilon" in firsts:
-                    #print(f"follow function of: {num_production[0]}")
                     firsts |= self.follow(num_production[0])
                 # End of first plus
                 for first in firsts:

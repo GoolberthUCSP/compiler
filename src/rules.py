@@ -36,7 +36,7 @@ productions = {
                     ["epsilon"]],
     "IMAGE" : [["IMAGEMARK", "OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "TEXT", "CLOSEPARENT"]],
     "URL" : [["OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "TEXT", "CLOSEPARENT"]],
-    "COMMENT" : [["COMMENTOPEN", "STRING", "COMMENTCLOSE"]],
+    "COMMENT" : [["COMMENTOPEN", "ALPHA", "COMMENTCLOSE"]],
     "OLISTMARK" : "+",
     "ULISTMARK" : "-",
     "IMAGEMARK" : "!",
