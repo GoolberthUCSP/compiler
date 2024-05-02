@@ -17,7 +17,6 @@ productions = {
     "SENTENCE" : [["STRING"],
                   ["BOLDMARK", "STRING", "BOLDMARK"],
                   ["ITALICMARK", "STRING", "ITALICMARK"]],
-    "STRING" : [["TEXTMARK", "ALPHA", "TEXTMARK"]],
     "OLIST" : [["OLISTITEM", "OLIST'"]],
     "OLIST'" : [["NEWLINE", "OLIST"], 
                 ["epsilon"]],
@@ -45,7 +44,6 @@ productions = {
     "H3" : "###",
     "BOLDMARK" : "**",
     "ITALICMARK" : "*",
-    "TEXTMARK" : "'",
     "NEWLINE" : "\n", # Cambiar a n para imprimir tabla
     "BLOCKSEP" : "\n\n", # Cambiar a nn para imprimir tabla
     "TABLEHEADSEP" : "&",
@@ -56,6 +54,6 @@ productions = {
     "CLOSEPARENT" : ")",
     "COMMENTOPEN" : "/*",
     "COMMENTCLOSE" : "*/",
-    "ALPHA" : "a", # DEBUGGING
+    "STRING" : "alphanum", # DEBUGGING
     "EOF" : "$"
 }

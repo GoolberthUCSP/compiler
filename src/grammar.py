@@ -1,4 +1,6 @@
 import io
+from src.rules import productions
+from src.alphabet import *
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -8,12 +10,13 @@ class MyStringIO(io.StringIO):
         return data
 
 class Grammar:
-    def __init__(self, productions):
+    def __init__(self):
         self.productions = productions
         self.num_productions = []
         self.parsing_table = dict(dict())
         self.tokens = []
         self.errors = []
+        self.strings = []
         self.file = None
         self.enum_productions()
         self.fill_parsing_table()
@@ -48,21 +51,23 @@ class Grammar:
                 else:
                     self.tokens.append(["H1", value])  # value = #
             # string
-            elif char == "'": # Bad syntax: 'data' isn't a token, they're three tokens: TEXTMARK, STRING, TEXTMARK
-                self.tokens.append(["TEXTMARK", char])  # value = '
-                endcheck = False
-                while self.file.peek(1) != "'":
-                    nextval = self.file.read(1)
-                    value += nextval
-                    if (not nextval):
-                            endcheck = True
-                            self.tokens.append(["ALPHA", value])
-                            self.tokens.append(["EOF", "$"])
-                            break
-                if endcheck:
-                    continue
-                self.tokens.append(["ALPHA", value])  # value = 'data'
-                self.tokens.append(["TEXTMARK", self.file.read(1)])  # value = '
+            elif char in alphabet:
+                while char in alphabet:
+                    if char == "\\":
+                        if self.file.peek(1) in special_chars: # We not need to escape the special chars in the grammar
+                            value += self.file.read(1)
+                        elif self.file.peek(1) in latex_escaped: # For latex format we need to escape the special chars
+                            value += char
+                            value += self.file.read(1)
+                        else:
+                            self.errors.append("Error in point " + str(self.file.tell()) + ": Invalid escape sequence")
+                    else:
+                        value += char
+                    char = self.file.read(1)
+                self.file.seek(self.file.tell() - 1) # return to last char
+                # self.tokens.append(["STRING", value])
+                self.strings.append(value)
+                self.tokens.append(["STRING", "alphanum"])
             # bold and italics
             elif char == "*":
                 value += char
@@ -109,8 +114,9 @@ class Grammar:
                 self.tokens.append(["TABLEHEADSEP", char])
             elif char == "|":
                 self.tokens.append(["TABLEBODYSEP", char])
-        if not endcheck:
-            self.tokens.append(["EOF", "$"])
+            else:
+                self.errors.append("Error in point " + str(self.file.tell()) + ": Invalid char")
+        self.tokens.append(["EOF", "$"])
         return self.tokens   
     
     def parser(self):

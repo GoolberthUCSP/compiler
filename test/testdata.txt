@@ -1,32 +1,35 @@
-'a'
+este es un texto\
+este es un texto*este es un texto*
 
-# 'a'
+este es un texto \!este es un texto¡
 
-## 'a'
+# este es un texto
 
-## 'a'
+## este es un texto
 
-### 'a'
+## este es un texto
 
-## 'a'
+### este es un texto
+
+## este es un texto
 
 /*
-## 'a'
+## este es un texto
 
-### 'a'
+### este es un texto
 */
 
-+ 'a'
-+ 'a'
++ este es un texto
++ este es un texto
 
-- 'a'
-- 'a'
+- este es un texto
+- este es un texto
 
-!['a']('a')
+![este es un texto](este es un texto)
 
-['a']('a')
+[este es un texto](este es un texto)
 
-&'a'&'a'&'a'
-|'a'|'a'|'a'
-|'a'|'a'|'a'
+&este es un texto&este es un texto&este es un texto
+|este es un texto|este es un texto|este es un texto
+|este es un texto|este es un texto|este es un texto
 
