@@ -24,7 +24,6 @@ class Grammar:
     def validate(self, input : MyStringIO):
         self.file = input
         self.tokens = self.scanner()
-        #print(self.tokens)
         done = self.parser()
         if not done:
             print("Errors:")
@@ -54,7 +53,7 @@ class Grammar:
             elif char in alphabet:
                 while char in alphabet:
                     if char == "\\":
-                        if self.file.peek(1) in special_chars: # We not need to escape the special chars in the grammar
+                        if self.file.peek(1) in special_chars: # We do not need to escape the special chars in the grammar
                             value += self.file.read(1)
                         elif self.file.peek(1) in latex_escaped: # For latex format we need to escape the special chars
                             value += char
@@ -189,7 +188,6 @@ class Grammar:
             visited = set()
         if token in visited:
             return follows
-        visited.add(token)
         if token == "DOCUMENT":
             follows.add("$")
             return follows

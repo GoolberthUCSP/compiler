@@ -1,13 +1,10 @@
 este es un texto\
-este es un texto*este es un texto*
+este es un texto**este es un texto**\
+este es un texto
 
 este es un texto \!este es un texto¡
 
 # este es un texto
-
-## este es un texto
-
-## este es un texto
 
 ### este es un texto
 
