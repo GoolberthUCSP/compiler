@@ -4,6 +4,8 @@ from src.alphabet import *
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
+        if self.tell() + size > len(self.getvalue()):
+            return None
         current_position = self.tell()
         data = self.read(size)
         self.seek(current_position)
@@ -51,7 +53,7 @@ class Grammar:
                     self.tokens.append(["H1", value])  # value = #
             # string
             elif char in alphabet:
-                while char in alphabet:
+                while True:
                     if char == "\\":
                         if self.file.peek(1) in special_chars: # We do not need to escape the special chars in the grammar
                             value += self.file.read(1)
@@ -62,8 +64,9 @@ class Grammar:
                             self.errors.append("Error in point " + str(self.file.tell()) + ": Invalid escape sequence")
                     else:
                         value += char
+                    if self.file.peek(1) not in alphabet or self.file.peek(1) is None:
+                        break
                     char = self.file.read(1)
-                self.file.seek(self.file.tell() - 1) # return to last char
                 # self.tokens.append(["STRING", value])
                 self.strings.append(value)
                 self.tokens.append(["STRING", "alphanum"])
@@ -87,8 +90,10 @@ class Grammar:
                     self.file.read(1)  # skip empty lines
             # comment
             elif (char == "/" and self.file.peek(1) == "*"):
-                while self.file.peek(2) != "*/":
+                while self.file.peek(2) != "*/" and self.file.peek(2) is not None:
                     self.file.read(1)
+                if self.file.peek(2) is None:
+                    self.errors.append("Error in point " + str(self.file.tell()) + ": Unclosed comment")
                 self.file.read(2)  # skip comment closer = */
                 while self.file.peek(1) == '\n':
                     self.file.read(1)
