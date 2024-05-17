@@ -142,7 +142,7 @@ class Grammar:
             elif stack[-1] not in self.productions.keys(): # stack[-1] = terminal
                 if stack[-1] != word[1]:
                     self.errors.append(f"Error in line {word[2]}: Expected {word[0]}, got {stack[-1]}")
-                    return False # error
+                    word = queue.pop(0) # PANIC MODE: skip bad word
                 else:
                     stack.pop()
                     word = queue.pop(0)
@@ -158,7 +158,13 @@ class Grammar:
                         stack.append(prod)
                 else:
                     self.errors.append(f"Error in line {word[2]}: Production not found [{stack[-1]}, {word[1]}]")
-                    return False # error
+                    # PANIC MODE:_ skip word until find follow
+                    curr_follows = self.follow(word[0])
+                    print(f"{word[0]}: {curr_follows}")
+                    while stack[-1] not in curr_follows:
+                        if stack[-1] == "$":
+                            return False
+                        stack.pop()
 
     def enum_productions(self):
         for key, value in self.productions.items():
