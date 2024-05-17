@@ -27,11 +27,11 @@ class Grammar:
         self.file = input
         self.tokens = self.scanner()
         done = self.parser()
-        if not done:
+        if len(self.errors) != 0:
             print("Errors:")
             for error in self.errors:
                 print("\t", error)
-        else:
+        if done:
             print("Success!")
         
 
@@ -62,7 +62,7 @@ class Grammar:
                             value += char
                             value += self.file.read(1)
                         else:
-                            self.errors.append("Error in point " + str(self.file.tell()) + ": Invalid escape sequence")
+                            self.errors.append("Error in line " + str(line) + ": Invalid escape sequence")
                     else:
                         value += char
                     if self.file.peek(1) not in alphabet or self.file.peek(1) is None:
@@ -95,9 +95,11 @@ class Grammar:
             # comment
             elif (char == "/" and self.file.peek(1) == "*"):
                 while self.file.peek(2) != "*/" and self.file.peek(2) is not None:
+                    if (self.file.peek(1)) == "\n":
+                        line += 1
                     self.file.read(1)
                 if self.file.peek(2) is None:
-                    self.errors.append("Error in point " + str(self.file.tell()) + ": Unclosed comment")
+                    self.errors.append("Error in line " + str(line) + ": Unclosed comment")
                 self.file.read(2)  # skip comment closer = */
                 while self.file.peek(1) == '\n':
                     self.file.read(1)
@@ -124,7 +126,7 @@ class Grammar:
             elif char == "|":
                 self.tokens.append(["TABLEBODYSEP", char, line])
             else:
-                self.errors.append("Error after \\ in line " + str(line) + ": Invalid char")
+                self.errors.append("Error in line " + str(line) + ": Invalid char after \\")
         self.tokens.append(["EOF", "$", line])
         return self.tokens   
     
@@ -139,7 +141,7 @@ class Grammar:
                 return True # success
             elif stack[-1] not in self.productions.keys(): # stack[-1] = terminal
                 if stack[-1] != word[1]:
-                    self.errors.append(f"Expected {word[0]}, got {stack[-1]} in line {word[2]}")
+                    self.errors.append(f"Error in line {word[2]}: Expected {word[0]}, got {stack[-1]}")
                     return False # error
                 else:
                     stack.pop()
@@ -155,7 +157,7 @@ class Grammar:
                     for prod in reversed(production): # reversed because we append to stack
                         stack.append(prod)
                 else:
-                    self.errors.append(f"Error in line {word[2]}, production not found [{stack[-1]}, {word[1]}]")
+                    self.errors.append(f"Error in line {word[2]}: Production not found [{stack[-1]}, {word[1]}]")
                     return False # error
 
     def enum_productions(self):
