@@ -36,6 +36,7 @@ class Grammar:
         
 
     def scanner(self):
+        line = 1
         while self.file.peek(1):
             value = ""
             char = self.file.read(1)
@@ -46,11 +47,11 @@ class Grammar:
                     value += self.file.read(1)
                     if self.file.peek(1) == "#":
                         value += self.file.read(1)
-                        self.tokens.append(["H3", value])  # value = ###
+                        self.tokens.append(["H3", value, line])  # value = ###
                     else:
-                        self.tokens.append(["H2", value])  # value = ##
+                        self.tokens.append(["H2", value, line])  # value = ##
                 else:
-                    self.tokens.append(["H1", value])  # value = #
+                    self.tokens.append(["H1", value, line])  # value = #
             # string
             elif char in alphabet:
                 while True:
@@ -69,23 +70,23 @@ class Grammar:
                     char = self.file.read(1)
                 # self.tokens.append(["STRING", value])
                 self.strings.append(value)
-                self.tokens.append(["STRING", "alphanum"])
+                self.tokens.append(["STRING", "alphanum", line])
             # bold and italics
             elif char == "*":
                 value += char
                 if self.file.peek(1) == "*":
                     value += self.file.read(1)
-                    self.tokens.append(["BOLDMARK", value])  # value = **
+                    self.tokens.append(["BOLDMARK", value, line])  # value = **
                 else:
-                    self.tokens.append(["ITALICMARK", value])  # value = *
+                    self.tokens.append(["ITALICMARK", value, line])  # value = *
             # newline
             elif char == '\n':
                 value += char
                 if self.file.peek(1) == '\n':
                     value += self.file.read(1)
-                    self.tokens.append(["BLOCKSEP", value])  # value = \n\n
+                    self.tokens.append(["BLOCKSEP", value, line])  # value = \n\n
                 else:
-                    self.tokens.append(["NEWLINE", value])  # value = \n
+                    self.tokens.append(["NEWLINE", value, line])  # value = \n
                 while self.file.peek(1) == '\n':
                     self.file.read(1)  # skip empty lines
             # comment
@@ -99,28 +100,28 @@ class Grammar:
                     self.file.read(1)
             # ordered list mark
             elif char == "+":
-                self.tokens.append(["OLISTMARK", char])
+                self.tokens.append(["OLISTMARK", char, line])
             # unordered list mark
             elif char == "-":
-                self.tokens.append(["ULISTMARK", char])
+                self.tokens.append(["ULISTMARK", char, line])
             elif char == "!":
-                self.tokens.append(["IMAGEMARK", char])
+                self.tokens.append(["IMAGEMARK", char, line])
             elif char == "[":
-                self.tokens.append(["OPENBRACKET", char])
+                self.tokens.append(["OPENBRACKET", char, line])
             elif char == "]":
-                self.tokens.append(["CLOSEBRACKET", char])
+                self.tokens.append(["CLOSEBRACKET", char, line])
             elif char == "(":
-                self.tokens.append(["OPENPARENTH", char])
+                self.tokens.append(["OPENPARENTH", char, line])
                 # TODO: Add support for recognized links or routes
             elif char == ")":
-                self.tokens.append(["CLOSEPARENTH", char])
+                self.tokens.append(["CLOSEPARENTH", char, line])
             elif char == "&":
-                self.tokens.append(["TABLEHEADSEP", char])
+                self.tokens.append(["TABLEHEADSEP", char, line])
             elif char == "|":
-                self.tokens.append(["TABLEBODYSEP", char])
+                self.tokens.append(["TABLEBODYSEP", char, line])
             else:
                 self.errors.append("Error in point " + str(self.file.tell()) + ": Invalid char")
-        self.tokens.append(["EOF", "$"])
+        self.tokens.append(["EOF", "$", line])
         return self.tokens   
     
     def parser(self):
