@@ -82,13 +82,16 @@ class Grammar:
             # newline
             elif char == '\n':
                 value += char
+                line += 1
                 if self.file.peek(1) == '\n':
                     value += self.file.read(1)
+                    line += 1
                     self.tokens.append(["BLOCKSEP", value, line])  # value = \n\n
                 else:
                     self.tokens.append(["NEWLINE", value, line])  # value = \n
                 while self.file.peek(1) == '\n':
                     self.file.read(1)  # skip empty lines
+                    line += 1
             # comment
             elif (char == "/" and self.file.peek(1) == "*"):
                 while self.file.peek(2) != "*/" and self.file.peek(2) is not None:
@@ -98,6 +101,7 @@ class Grammar:
                 self.file.read(2)  # skip comment closer = */
                 while self.file.peek(1) == '\n':
                     self.file.read(1)
+                    line += 1
             # ordered list mark
             elif char == "+":
                 self.tokens.append(["OLISTMARK", char, line])
@@ -120,7 +124,7 @@ class Grammar:
             elif char == "|":
                 self.tokens.append(["TABLEBODYSEP", char, line])
             else:
-                self.errors.append("Error in point " + str(self.file.tell()) + ": Invalid char")
+                self.errors.append("Error after \\ in line " + str(line) + ": Invalid char")
         self.tokens.append(["EOF", "$", line])
         return self.tokens   
     
@@ -128,14 +132,14 @@ class Grammar:
         stack = []
         stack.append("DOCUMENT")
         queue = self.tokens[:]
-        word = queue.pop(0) # word = [token, value] e.g. ["H1", "#"]
+        word = queue.pop(0) # word = [token, value, line] e.g. ["H1", "#", 0]
         while True:
             # Top of Stack = stack[-1]
             if stack[-1] == word[1] == "$":
                 return True # success
             elif stack[-1] not in self.productions.keys(): # stack[-1] = terminal
                 if stack[-1] != word[1]:
-                    self.errors.append(f"Expected {word[0]}, got {stack[-1]}")
+                    self.errors.append(f"Expected {word[0]}, got {stack[-1]} in line {word[2]}")
                     return False # error
                 else:
                     stack.pop()
@@ -151,7 +155,7 @@ class Grammar:
                     for prod in reversed(production): # reversed because we append to stack
                         stack.append(prod)
                 else:
-                    self.errors.append(f"Production not found: parsing_table[{stack[-1]}][{word[1]}]")
+                    self.errors.append(f"Error in line {word[2]}, production not found [{stack[-1]}, {word[1]}]")
                     return False # error
 
     def enum_productions(self):
