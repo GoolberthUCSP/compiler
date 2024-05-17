@@ -57,6 +57,8 @@ class Grammar:
                 while True:
                     if char == "\\":
                         if self.file.peek(1) in special_chars: # We do not need to escape the special chars in the grammar
+                            if self.file.peek(1) == "\n":
+                                line += 1
                             value += self.file.read(1)
                         elif self.file.peek(1) in latex_escaped: # For latex format we need to escape the special chars
                             value += char
@@ -159,12 +161,12 @@ class Grammar:
                 else:
                     self.errors.append(f"Error in line {word[2]}: Production not found [{stack[-1]}, {word[1]}]")
                     # PANIC MODE:_ skip word until find follow
-                    curr_follows = self.follow(word[0])
-                    print(f"{word[0]}: {curr_follows}")
-                    while stack[-1] not in curr_follows:
-                        if stack[-1] == "$":
+                    curr_follows = self.follow(stack[-1])
+                    print(f"{stack[-1]}: {curr_follows}")
+                    while word[0] not in curr_follows:
+                        if word[1] == "$":
                             return False
-                        stack.pop()
+                        word = queue.pop(0)
 
     def enum_productions(self):
         for key, value in self.productions.items():
