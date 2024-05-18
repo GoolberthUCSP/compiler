@@ -32,7 +32,7 @@ class Grammar:
             for error in self.errors:
                 print("\t", error)
         if done:
-            print("Success!")
+            print("Compilation terminated.")
         
 
     def scanner(self):
@@ -162,8 +162,8 @@ class Grammar:
                     self.errors.append(f"Error in line {word[2]}: Production not found [{stack[-1]}, {word[1]}]")
                     # PANIC MODE:_ skip word until find follow
                     curr_follows = self.follow(stack[-1])
-                    print(f"{stack[-1]}: {curr_follows}")
-                    while word[0] not in curr_follows:
+                    print(f"Follow of {stack[-1]}: {curr_follows}")
+                    while word[1] not in curr_follows:
                         if word[1] == "$":
                             return False
                         word = queue.pop(0)
@@ -247,6 +247,10 @@ class Grammar:
             for symbol, productions in self.parsing_table.items():
                 terminals.update(productions.keys())
             for terminal in sorted(terminals):
+                if (terminal == "\n"):
+                        terminal = "n"
+                elif (terminal == "\n\n"):
+                        terminal = "nn"
                 file.write("{:<10}".format(terminal))
             file.write("\n")
 
