@@ -129,7 +129,12 @@ class Grammar:
                 self.tokens.append(["TABLEBODYSEP", char, line])
             else:
                 self.errors.append("Error in line " + str(line) + ": Invalid char after \\")
-        self.tokens.append(["EOF", "$", line])
+        if (self.tokens[-1][0] == "NEWLINE"):
+            self.tokens[-1] = ["BLOCKSEP", "\n\n", self.tokens[-1][2]]
+        elif (self.tokens[-1][0] != "BLOCKSEP"):
+            self.tokens.append(["BLOCKSEP", "\n\n", line + 1])
+            line += 1
+        self.tokens.append(["EOF", "$", line + 1])
         return self.tokens   
     
     def parser(self):
@@ -162,7 +167,6 @@ class Grammar:
                     self.errors.append(f"Error in line {word[2]}: Production not found [{stack[-1]}, {word[1]}]")
                     # PANIC MODE:_ skip word until find follow
                     curr_follows = self.follow(stack[-1])
-                    print(f"Follow of {stack[-1]}: {curr_follows}")
                     while word[1] not in curr_follows:
                         if word[1] == "$":
                             return False
