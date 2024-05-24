@@ -164,9 +164,9 @@ class Grammar:
                     for prod in reversed(production): # reversed because we append to stack
                         stack.append(prod)
                 else:
-                    self.errors.append(f"Error in line {word[2]}: Production not found [{stack[-1]}, {word[1]}]")
                     # PANIC MODE:_ skip word until find follow
                     curr_follows = self.follow(stack[-1])
+                    self.errors.append(f"Error in line {word[2]}: Expected symbol in {curr_follows}, got {word[1]}")
                     while word[1] not in curr_follows:
                         if word[1] == "$":
                             return False
