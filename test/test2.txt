@@ -3,8 +3,8 @@
 - title
 - # item
 
-# este es texto
+# este es texto\
 
-## + este es texto
+## este es texto
 
 este es texto
