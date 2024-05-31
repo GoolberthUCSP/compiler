@@ -1,6 +1,7 @@
 import io
 from src.rules import productions
 from src.alphabet import *
+from src.tree import Node
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -20,6 +21,8 @@ class Grammar:
         self.errors = []
         self.strings = []
         self.file = None
+        self.tree = None
+        self.output = self.load_header()
         self.enum_productions()
         self.fill_parsing_table()
 
@@ -72,7 +75,7 @@ class Grammar:
                     char = self.file.read(1)
                 # self.tokens.append(["STRING", value])
                 self.strings.append(value)
-                self.tokens.append(["STRING", "alphanum", line])
+                self.tokens.append(["STRING", "alphanum", line, len(self.strings) - 1])
             # bold and italics
             elif char == "*":
                 value += char
@@ -163,6 +166,7 @@ class Grammar:
                         continue
                     for prod in reversed(production): # reversed because we append to stack
                         stack.append(prod)
+                    
                 else:
                     # PANIC MODE:_ skip word until find follow
                     curr_follows = self.follow(stack[-1])
@@ -268,3 +272,7 @@ class Grammar:
                     else:
                         file.write("{:<10}".format("-"))
                 file.write("\n")
+
+    def load_header():
+        with open("header.txt") as file:
+            return file.read()
