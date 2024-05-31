@@ -3,6 +3,7 @@ from src.rules import productions
 from src.alphabet import *
 from src.tree import Node
 
+
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
         if self.tell() + size > len(self.getvalue()):
@@ -170,7 +171,8 @@ class Grammar:
                 else:
                     # PANIC MODE:_ skip word until find follow
                     curr_follows = self.follow(stack[-1])
-                    self.errors.append(f"Error in line {word[2]}: Expected symbol in {curr_follows}, got {word[1]}")
+                    self.errors.append(f"Error in line {word[2]}: Expected symbol in {list(self.parsing_table[stack[-1]].keys())}, got {word[1]}")
+                    word = queue.pop(0)
                     while word[1] not in curr_follows:
                         if word[1] == "$":
                             return False
