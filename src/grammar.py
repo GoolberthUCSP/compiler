@@ -2,6 +2,7 @@ import io
 from src.rules import productions
 from src.alphabet import *
 from src.tree import Node
+from src.dict import DICT
 
 
 class MyStringIO(io.StringIO):
@@ -23,7 +24,7 @@ class Grammar:
         self.strings = []
         self.file = None
         self.tree = None
-        self.output = self.load_header()
+        self.output = DICT["HEADER"][0]
         self.enum_productions()
         self.fill_parsing_table()
 
@@ -274,7 +275,3 @@ class Grammar:
                     else:
                         file.write("{:<10}".format("-"))
                 file.write("\n")
-
-    def load_header():
-        with open("header.txt") as file:
-            return file.read()

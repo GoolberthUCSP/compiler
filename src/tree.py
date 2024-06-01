@@ -11,11 +11,3 @@ class Node:
         if self.children:
             for child in self.children:
                 child.traverse()
-
-root = Node(25)
-root.add_child(31)
-
-child = root.children[0]
-child.add_child(32)
-
-root.traverse()
