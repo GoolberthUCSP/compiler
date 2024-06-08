@@ -3,7 +3,7 @@ from src.rules import productions
 from src.alphabet import *
 from src.tree import Node
 from src.dict import DICT
-
+from PrettyPrint import PrettyPrintTree
 
 class MyStringIO(io.StringIO):
     def peek(self, size=1):
@@ -14,6 +14,21 @@ class MyStringIO(io.StringIO):
         self.seek(current_position)
         return data
 
+class ASTNode:
+        def __init__(self, symbol):
+            self.symbol = symbol
+            self.children = []
+
+        def __repr__(self, level=0, is_last_child=True, indent=""):
+            ret = indent
+            if level > 0:
+                ret += "└── " if is_last_child else "├── "
+            ret += repr(self.symbol) + "\n"
+            indent += "    " if is_last_child else "│   "
+            for i, child in enumerate(self.children):
+                ret += child.__repr__(level + 1, i == len(self.children) - 1, indent)
+            return ret
+
 class Grammar:
     def __init__(self):
         self.productions = productions
@@ -22,23 +37,35 @@ class Grammar:
         self.tokens = []
         self.errors = []
         self.strings = []
+        self.astree = None
         self.file = None
-        self.tree = None
-        self.output = DICT["HEADER"][0]
+        #self.tree = None
+        #self.output = DICT["HEADER"][0]
         self.enum_productions()
         self.fill_parsing_table()
 
     def validate(self, input : MyStringIO):
         self.file = input
         self.tokens = self.scanner()
-        done = self.parser()
+        done, self.astree = self.parser()
+
+        # For purposes of printing the tree in same order as productions
+        # Shouldn´t affect the tree structure
+        self.reverse_astree(self.astree)
+
+        self.pretty_print_ast(self.astree, "test/astree_output.txt")
         if len(self.errors) != 0:
             print("Errors:")
             for error in self.errors:
                 print("\t", error)
         if done:
             print("Compilation terminated.")
-        
+    
+    # Due to constructing the tree with a stack, have to revert the order to prit the tree
+    def reverse_astree(self, root):
+        root.children.reverse()
+        for node in root.children:
+            self.reverse_astree(node)
 
     def scanner(self):
         line = 1
@@ -144,31 +171,40 @@ class Grammar:
     
     def parser(self):
         stack = []
+        ast_stack = []
         stack.append("DOCUMENT")
+        root = ASTNode("DOCUMENT")
+        ast_stack.append(root)
         queue = self.tokens[:]
         word = queue.pop(0) # word = [token, value, line] e.g. ["H1", "#", 0]
         while True:
             # Top of Stack = stack[-1]
             if stack[-1] == word[1] == "$":
-                return True # success
+                return True, root # success
             elif stack[-1] not in self.productions.keys(): # stack[-1] = terminal
                 if stack[-1] != word[1]:
                     self.errors.append(f"Error in line {word[2]}: Expected {word[0]}, got {stack[-1]}")
                     word = queue.pop(0) # PANIC MODE: skip bad word
                 else:
                     stack.pop()
+                    ast_stack.pop()
                     word = queue.pop(0)
             else: # stack[-1] == non-terminal
                 if word[1] in self.parsing_table[stack[-1]].keys():
                     production = self.num_productions[self.parsing_table[stack[-1]][word[1]]][1]
+                    parent_node = ast_stack.pop()
                     stack.pop()
                     if not isinstance(production, list):
                         production = [production]
                     if production == ["epsilon"]:
+                        epsilon_node = ASTNode("ε")
+                        parent_node.children.append(epsilon_node)
                         continue
                     for prod in reversed(production): # reversed because we append to stack
                         stack.append(prod)
-                    
+                        child_node = ASTNode(prod)
+                        parent_node.children.append(child_node)
+                        ast_stack.append(child_node)
                 else:
                     # PANIC MODE:_ skip word until find follow
                     curr_follows = self.follow(stack[-1])
@@ -186,6 +222,12 @@ class Grammar:
                 continue
             for prod in value:
                 self.num_productions.append([key, prod])
+
+    def pretty_print_ast(self, ast, filename):
+        to_str = PrettyPrintTree(lambda x: x.children, lambda x: x.symbol, return_instead_of_print=True, color=None, border=True)
+        tree_as_str = to_str(ast)
+        with open(filename, 'w', encoding="utf-8") as file:
+            file.write(tree_as_str)
 
     def first(self, token, visited=None):
         firsts = set()
