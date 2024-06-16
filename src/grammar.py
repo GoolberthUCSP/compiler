@@ -39,27 +39,211 @@ class Grammar:
         self.strings = []
         self.astree = None
         self.file = None
-        #self.tree = None
-        #self.output = DICT["HEADER"][0]
+        self.file_name = ""
+        self.output = DICT["PKG"]
         self.enum_productions()
         self.fill_parsing_table()
+        self.temp_translate = []
+        self.table_head_buffer = []
+        self.table_body_buffer = [[]]
+        self.translation = ""
+
+    def output_translation(self):
+        self.output += f"\n\\title{{{self.file_name}}}\n\\author{{author}}\n"
+        self.output += self.translation
+        with open("test/out.tex", "w") as f:
+            f.write(self.output)
+        return
+
+    def translate(self, node):
+        if node.symbol == "DOCUMENT":
+            self.translation += "\\begin{document}\n\\maketitle\n"
+            for child in node.children:
+                self.translate(child)
+            self.translation += "\\end{document}"
+        elif node.symbol == "BLOCKS":
+            for child in node.children:
+                self.translate(child)
+        elif node.symbol == "BLOCK":
+            if node.children[0].symbol in  {"H1", "H2", "H3"}:
+                self.process_H(node)
+            elif node.children[0].symbol == "TEXT":
+                self.process_TEXT(node)
+            elif node.children[0].symbol == "OLIST":
+                self.translation += f"\\begin{{enumerate}}\n"
+                self.process_OLIST(node)
+                self.translation += f"\n\\end{{enumerate}}"
+            elif node.children[0].symbol == "ULIST":
+                self.translation += f"\\begin{{itemize}}\n"
+                self.process_ULIST(node)
+                self.translation += f"\n\\end{{itemize}}"
+            elif node.children[0].symbol == "IMAGE":
+                self.process_IMAGE(node)
+            elif node.children[0].symbol == "TABLE":
+                self.process_TABLE(node)
+                self.table_body_buffer = [[]]
+                self.table_head_buffer.clear()
+            elif node.children[0].symbol == "URL":
+                self.process_URL(node)
+        elif node.symbol == "BLOCKSEP":
+            self.translation += "\n\n"
+        else:
+            return
+
+    def process_H(self, node):
+        if node.children[0].symbol == "H1":
+            self.translation += "\\section{"
+        elif node.children[0].symbol == "H2":
+            self.translation += "\\subsection{"
+        else:
+            self.translation += "\\subsubsection{"
+        self.process_TEXT(node.children[1])
+        self.translation += "}"
+        return
+    
+    def process_TEXT(self, node):
+        if (node.symbol == "alphanum"):
+            self.translation += self.strings.pop(0)
+        elif (node.symbol == "**"):
+            if (len(self.temp_translate) > 0 and self.temp_translate[-1] == "**"): # may error
+                self.translation += "}"
+                self.temp_translate.pop()
+            else:
+                self.translation += "\\textbf{"
+                self.temp_translate.append("**")
+        elif (node.symbol == "*"):
+            if (len(self.temp_translate) > 0 and self.temp_translate[-1] == "*"): #may error
+                self.translation += "}"
+                self.temp_translate.pop()
+            else:
+                self.translation += "\\textit{"
+                self.temp_translate.append("*")
+        for child in node.children:
+            self.process_TEXT(child)
+        return
+    
+    def process_OLIST(self, node):
+        if node.symbol == "OLISTITEM":
+            self.translation += "\\item"
+            self.process_TEXT(node.children[1])
+        if node.symbol == "NEWLINE":
+            self.translation += "\n"
+
+        for child in node.children:
+            self.process_OLIST(child)
+        return
+    
+    def process_ULIST(self, node):
+        if node.symbol == "ULISTITEM":
+            self.translation += "\\item"
+            self.process_TEXT(node.children[1])
+        if node.symbol == "NEWLINE":
+            self.translation += "\n"
+
+        for child in node.children:
+            self.process_ULIST(child)
+        return
+    
+    def process_IMAGE(self, node):
+        # First text in image  form: "IMAGEMARK", "OPENBRACKET", "TEXT", "CLOSEBRACKET","OPENPARENT", "STRING", "CLOSEPARENT"
+        self.translation += "\\begin{figure}[h]\n\\caption{"
+        self.process_TEXT(node.children[0].children[2])
+        self.translation += "}\n\\centering\n"
+        self.translation += "\\includegraphics[width=\\textwidth]{"
+        self.process_TEXT(node.children[0].children[5])
+        self.translation += "}\n\\end{figure}"
+        return
+    
+    def process_TABLE(self, node):
+        self.process_TABLEHEAD(node.children[0].children[0])
+        self.process_TABLEBODY(node.children[0].children[1])
+
+        maxlength = len(self.table_head_buffer)
+        for row in self.table_body_buffer:
+            if len(row) > maxlength:
+                maxlength = len(row)
+
+        self.translation += "\\begin{table}[h!]\n\\centering\n\\begin{tabular}{||"
+        self.translation += " ".join(["c"] * maxlength)
+        self.translation += "||}\n\\hline\n"
+        self.translation += self.process_TABLEROW(self.table_head_buffer, maxlength)
+        self.translation += "\\hline\\hline\n"
+        for row in self.table_body_buffer:
+            self.translation += self.process_TABLEROW(row, maxlength)
+        
+        self.translation += "\\hline\n"
+        self.translation += "\\end{tabular}\n\\end{table}"
+        return
+    
+    def process_TABLEROW(self, row, maxlength):
+        row_string = " & ".join([str(x) for x in row])
+        row_string += " & " * (maxlength - len(row))
+        return row_string + "\\\\\n"
+    
+    def process_TABLEHEAD(self, node):
+        if (node.symbol == "TEXT" and node.children[0].symbol != "ε"):
+            self.table_head_buffer.append(self.get_TEXT(node))
+        for child in node.children:
+            self.process_TABLEHEAD(child)
+        return
+    
+    def process_TABLEBODY(self, node):
+        visited = False
+        if (node.symbol == "TEXT" and node.children[0].symbol != "ε"):
+            self.table_body_buffer[-1].append(self.get_TEXT(node))
+            visited = True
+        elif (node.symbol == "NEWLINE"):
+            self.table_body_buffer.append([])
+        if not visited:
+            for child in node.children:
+                self.process_TABLEBODY(child)
+        return
+
+    def get_TEXT(self, node):
+        res = ""
+        if (node.symbol == "alphanum"):
+            res += self.strings.pop(0)
+        elif (node.symbol == "**"):
+            if (len(self.temp_translate) > 0 and self.temp_translate[-1] == "**"): 
+                self.temp_translate.pop()
+                res += "}"
+            else:
+                self.temp_translate.append("**")
+                res += "\\textbf{"
+        elif (node.symbol == "*"):
+            if (len(self.temp_translate) > 0 and self.temp_translate[-1] == "*"): 
+                self.temp_translate.pop()
+                res += "}"
+            else:
+                self.temp_translate.append("*")
+                res += "\\textit{"
+        for child in node.children:
+            res += self.get_TEXT(child)
+        return res
+
+    def process_URL(self, node):
+        self.translation += "\\href{"
+        self.process_TEXT(node.children[0].children[1])
+        self.translation += "}{"
+        self.process_TEXT(node.children[0].children[4])
+        self.translation += "}"
+        return
 
     def validate(self, input : MyStringIO):
         self.file = input
         self.tokens = self.scanner()
         done, self.astree = self.parser()
 
-        # For purposes of printing the tree in same order as productions
-        # Shouldn´t affect the tree structure
-        self.reverse_astree(self.astree)
-
-        self.pretty_print_ast(self.astree, "test/astree_output.txt")
         if len(self.errors) != 0:
             print("Errors:")
             for error in self.errors:
                 print("\t", error)
         if done:
-            print("Compilation terminated.")
+            self.reverse_astree(self.astree)
+            self.pretty_print_ast(self.astree, "test/astree_output.txt")
+            self.translate(self.astree)
+            self.output_translation()
+            print("Compilation terminated successfully.")
     
     # Due to constructing the tree with a stack, have to revert the order to prit the tree
     def reverse_astree(self, root):

@@ -1,12 +1,49 @@
-este es un texto\
-este es un texto**este es un texto**\
-este es un texto
+Lorem ipsum **dolor sit amet, consectetur** adipiscing elit. Morbi fringilla sit amet augue nec convallis.\
+Nam a libero mi. Pellentesque faucibus tincidunt felis, in *venenatis* elit aliquet vitae.\
+Vivamus nec sagittis libero. In hac **habitasse platea** dictumst. Link al repo:
 
-# este es un texto
+[https:\/\/github.com\/GoolberthUCSP\/compiler](Compiler Repository)
 
-### este es un texto
+# Section 1
 
-## este es un texto
+Praesent rhoncus dolor lorem, vel iaculis est egestas et. Proin sodales fringilla elit,\
+ac tempor ipsum scelerisque in. Duis viverra dictum velit eget hendrerit.
 
-este es un texto
+## Subsection 1
+
+Maecenas vel eros facilisis, luctus enim nec, vestibulum orci. Nunc suscipit est elit,\
+quis accumsan arcu cursus ut. Curabitur dictum quam tempor semper venenatis.
+
++ Sed at tortor hendrerit, lobortis ex id, bibendum ligula. Etiam mollis justo ipsum, ac lobortis quam porttitor in.
++ Sed at tortor hendrerit, lobortis ex id, bibendum ligula. Etiam mollis justo ipsum, ac lobortis quam porttitor in.
++ Nullam scelerisque velit eu aliquam fermentum. Proin mattis varius faucibus.
+
+&title1&title2&title3
+| elem1 | *elem2* | **elem3**
+| elem1 | *elem2* | **elem3**
+| elem1 | *elem2* | **elem3**
+
+### Subsubsection 1
+
+![A normal image](imgs\/hutaochibi.png)
+
+Ut finibus sodales dolor, sit amet viverra dolor molestie in.
+
+# Section 2
+
+Praesent rhoncus dolor lorem, vel iaculis est egestas et. Proin sodales fringilla elit,\
+ac tempor ipsum scelerisque in. Duis viverra dictum velit eget hendrerit. 
+
+- Vivamus ut nisl enim. Sed et ipsum sit amet nibh lacinia aliquet.
+- Ut finibus sodales dolor, sit amet viverra dolor molestie in.
+- Vivamus ut nisl enim. Sed et ipsum sit amet nibh lacinia aliquet.
+
+&title1&title2&title3&title4&title5
+| elem1 | elem2*hola* | **elem7** | elem6 | elem9
+| elem1 |  | **elem7** |  | elem9
+| elem1 | elem2*hola* | **elem7** | elem6 | elem9
+| elem1 |  | **elem7** |  | elem9
+| elem1 | elem2*hola* | **elem7** | elem6 | elem9
+
+![An impressive image](imgs\/inabku.jpg)
 
