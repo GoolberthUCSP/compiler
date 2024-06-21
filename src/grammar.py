@@ -51,7 +51,7 @@ class Grammar:
     def output_translation(self):
         self.output += f"\n\\title{{{self.file_name}}}\n\\author{{author}}\n"
         self.output += self.translation
-        with open("test/out.tex", "w") as f:
+        with open("test/out.tex", "w", encoding="utf-8") as f:
             f.write(self.output)
         return
 
